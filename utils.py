@@ -11,3 +11,6 @@ def get_sin_df(frequency: float|int=1, amplitude: float|int=1, period: float|int
         columns=["f(x) = sin(x)", ],
     )
     return df
+
+def get_motion_df():
+    pass
