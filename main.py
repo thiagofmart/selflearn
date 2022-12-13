@@ -3,11 +3,42 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-from utils import get_sin_df
+from utils import get_sin_df, generate_motion_df, update_motion_df
 from time import sleep
+from PIL import Image, ImageDraw
+
+
+
+
 
 
 placeholder = st.empty()
+if st.checkbox('show entities'):
+    frame = 128 #10 frame per second
+    max_velocity = 7.5
+    size_of_entities = 15
+    plane_dim = (800, 500)
+    df_entities = generate_motion_df(size_of_entities, plane_dim, max_velocity)
+    with placeholder.container():
+        #for i in range(0, 100):
+        while True:
+            sleep(1/frame)
+            image = Image.new('RGBA', (plane_dim[0]+1, plane_dim[1]+1))
+            draw = ImageDraw.Draw(image)
+            #board
+            draw.rectangle([(0,0), (plane_dim[0],plane_dim[1])], fill="white", outline="red", width=1)
+            for row in df_entities.iterrows():
+                x, y, r = row[1]["x"], row[1]["y"], row[1]["r"]
+                draw.ellipse(
+                    [ #defining coordinates of
+                        (x-r, y-r), # x0, y0
+                        (x+r, y+r) # x1, y1
+                    ], # where x0 <= x1 and y0 <= y1
+                    fill = 'blue', 
+                    outline ='blue'
+                )
+            placeholder.image(image)
+            df_entities = update_motion_df(df_entities, plane_dim, frame)
 
 
 
@@ -69,36 +100,3 @@ st.balloons()
 """
 
 
-max_force = 20
-size_of_entities = 15
-force_vectors = np.random.uniform(0, max_force, size_of_entities*2) # generate x and y forces vector based on max_force
-df_entities = pd.DataFrame({
-    "x":np.ceil(np.random.rand(size_of_entities)*30), #x coordinate between [0-30]
-    "y":np.ceil(np.random.rand(size_of_entities)*30), #y coordinate between [0-30]
-    "r":np.concatenate(([20], np.random.rand(size_of_entities-1)*25), ), #radius between [0-1]
-    'vi':force_vectors[0:size_of_entities], # divide the vector into two and gets the first part
-    "vj":force_vectors[size_of_entities:], # divide the vector into two and gets the second part
-})
-
-if st.checkbox('show entities'):
-    with placeholder.container():
-        for i in range(0, 10):
-            sleep(0.5)
-            force_vectors = np.random.uniform(0, max_force, size_of_entities*2) # generate x and y forces vector based on max_force
-            df_entities = pd.DataFrame({
-                "x":np.ceil(np.random.rand(size_of_entities)*30), #x coordinate between [0-30]
-                "y":np.ceil(np.random.rand(size_of_entities)*30), #y coordinate between [0-30]
-                "r":np.concatenate(([20], np.random.rand(size_of_entities-1)*25), ), #radius between [0-1]
-                'vi':force_vectors[0:size_of_entities], # divide the vector into two and gets the first part
-                "vj":force_vectors[size_of_entities:], # divide the vector into two and gets the second part
-            })
-            fig = go.Figure(data=go.Scatter(
-                x = df_entities["x"],
-                y = df_entities["y"],
-                mode="markers",
-                marker={
-                    "size": df_entities["r"],
-                    "color": [0] + [1 for i in range(1,size_of_entities)],
-                }
-            ))
-            placeholder.plotly_chart(fig)
