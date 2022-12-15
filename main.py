@@ -3,44 +3,30 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-from utils import get_sin_df, generate_motion_df, update_motion_df
+from utils import create_image, get_sin_df, generate_motion_df, update_motion_df
 from time import sleep
-from PIL import Image, ImageDraw
-
-
-
-
+import asyncio
 
 
 placeholder = st.empty()
-if st.checkbox('show entities'):
-    frame = 128 #10 frame per second
-    max_velocity = 7.5
-    size_of_entities = 15
-    plane_dim = (800, 500)
-    df_entities = generate_motion_df(size_of_entities, plane_dim, max_velocity)
-    with placeholder.container():
-        #for i in range(0, 100):
-        while True:
+checkbox = st.checkbox('show entities')
+async def display_images(frame):
+    global df_entities, plane_dim
+    while True:
+        for i in range(0, 1_000):
+            df_entities = await update_motion_df(df_entities, plane_dim)
+            image = await create_image(plane_dim, df_entities)
             sleep(1/frame)
-            image = Image.new('RGBA', (plane_dim[0]+1, plane_dim[1]+1))
-            draw = ImageDraw.Draw(image)
-            #board
-            draw.rectangle([(0,0), (plane_dim[0],plane_dim[1])], fill="white", outline="red", width=1)
-            for row in df_entities.iterrows():
-                x, y, r = row[1]["x"], row[1]["y"], row[1]["r"]
-                draw.ellipse(
-                    [ #defining coordinates of
-                        (x-r, y-r), # x0, y0
-                        (x+r, y+r) # x1, y1
-                    ], # where x0 <= x1 and y0 <= y1
-                    fill = 'blue', 
-                    outline ='blue'
-                )
             placeholder.image(image)
-            df_entities = update_motion_df(df_entities, plane_dim, frame)
 
-
+if checkbox:
+    frame = 200 # frame per second
+    max_velocity = 7.5
+    size_of_entities = 10
+    plane_dim = (800, 500)
+    df_entities = generate_motion_df(size_of_entities, plane_dim, max_velocity)    
+    with placeholder.container():
+        asyncio.run(display_images(frame))
 
 
 ####################################################################
@@ -71,8 +57,6 @@ st.latex(r'''
     \sum_{k=0}^{n-1} ar^k =
     a \left(\frac{1-r^{n}}{1-r}\right)
     ''')
-
-
 
 """
 progress_bar = st.progress(0)

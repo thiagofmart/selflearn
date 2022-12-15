@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
-from functools import reduce
+from PIL import Image, ImageDraw
+
 
 def get_sin_df(frequency=1, amplitude=1, period=2*np.pi, hshift=0, vshift=0):
     f = lambda x: np.sin(x)
@@ -44,7 +45,10 @@ def _identifyBorderColision(row, plane_dim):
 def _getEntitiesColisionsTotalVectorialSum(row, df_entities):
         """
         The strategy that I will adopt to infer that a colision occurs between two entities,
-        I will validate if the distance between the central point of a entity is <= sum of the radius of entity one and entity two
+
+        I will validate if the distance between the central point of a entity is <= sum of the 
+        radius of entity one and entity two
+        
         """
         x0, y0, r0, vi0, vj0 = row['x'], row['y'], row['r'], row['vi'], row['vj']
         df = df_entities.drop(row.name) #df without the entity that is being validated
@@ -60,7 +64,7 @@ def _getEntitiesColisionsTotalVectorialSum(row, df_entities):
             vectorial_sum = [0, 0]
         return vectorial_sum
 
-def update_motion_df(df_entities, plane_dim, frame):
+async def update_motion_df(df_entities, plane_dim):
     """
     1 - Verify Colision with border -> reverse the velocity vector direction
     2 - Verify Colision with another entity -> sum up the vectors of the entities
@@ -94,4 +98,22 @@ def update_motion_df(df_entities, plane_dim, frame):
     df_entities["x"] += df_entities["vi"]
     df_entities["y"] += df_entities["vj"]
     return df_entities[['x', 'y', 'r', 'vi', 'vj']]
+
+async def create_image(plane_dim, df_entities):
+    image = Image.new('RGBA', (plane_dim[0]+1, plane_dim[1]+1))
+    draw = ImageDraw.Draw(image)
+    #board
+    draw.rectangle([(0,0), (plane_dim[0],plane_dim[1])], fill="white", outline="red", width=1)
+    for row in df_entities.iterrows():
+        x, y, r = row[1]["x"], row[1]["y"], row[1]["r"]
+        draw.ellipse(
+            [ #defining coordinates of
+                (x-r, y-r), # x0, y0
+                (x+r, y+r) # x1, y1
+            ], # where x0 <= x1 and y0 <= y1
+            fill = 'blue', 
+            outline ='blue'
+        )
+    return image
+
 
