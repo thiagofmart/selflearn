@@ -20,7 +20,7 @@ async def display_images(frame):
             placeholder.image(image)
 
 if checkbox:
-    frame = 200 # frame per second
+    frame = 10 # frame per second
     max_velocity = 7.5
     size_of_entities = 10
     plane_dim = (800, 500)
