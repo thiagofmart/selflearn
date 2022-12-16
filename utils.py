@@ -2,6 +2,9 @@ import numpy as np
 import pandas as pd
 from PIL import Image, ImageDraw
 
+def load(path_file):
+    with open(path_file, "r") as file:
+        return file.read()
 
 def get_sin_df(frequency=1, amplitude=1, period=2*np.pi, hshift=0, vshift=0):
     f = lambda x: np.sin(x)
