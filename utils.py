@@ -1,10 +1,20 @@
+import streamlit as st
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageDraw
+import streamlit.components.v1 as components
+import os
+
+def file_selector(folder_path='.'):
+    filenames = os.listdir(folder_path)
+    selected_filename = st.selectbox('Select a file', filenames)
+    return os.path.join(folder_path, selected_filename)
+
 
 def load(path_file):
     with open(path_file, "r") as file:
-        return file.read()
+        string = file.read()
+        return string
 
 def get_sin_df(frequency=1, amplitude=1, period=2*np.pi, hshift=0, vshift=0):
     f = lambda x: np.sin(x)
@@ -120,3 +130,21 @@ async def create_image(plane_dim, df_entities):
     return image
 
 
+def render_footer():
+    variables = {
+    "github": "https://github.com/thiagofmart",
+    "linkedin": "https://www.linkedin.com/in/thiago-ferreira-martins-45004b191/",
+    "instagram": "https://www.instagram.com/thiago_fmart/",
+    "email": "thiago.fmartins@outlook.com",
+    "link_style":'color:white; text-decoration: none; margin-left:20px; margin-right:20px;',
+    }
+    javascript = f'<script language="javascript">{load("javascript/index.js")}</script>'
+    components.html(javascript+load("html/myFooter.html").format(
+    github=variables["github"],
+    linkedin=variables["linkedin"],
+    instagram=variables["instagram"],
+    email=variables["email"],
+    link_style=variables["link_style"],
+    ),
+    height=35
+)

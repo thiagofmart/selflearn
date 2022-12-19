@@ -1,16 +1,17 @@
 import streamlit as st
 from streamlit.runtime.scriptrunner import add_script_run_ctx
-from utils import create_image, generate_motion_df, update_motion_df
+from utils import load, create_image, generate_motion_df, update_motion_df, render_footer
 from time import sleep
 import asyncio
 from threading import Thread
-
+import streamlit.components.v1 as components
+import json
 
 
 frame = 64 # frame per second
 max_velocity = 4
 size_of_entities = 10
-plane_dim = (800, 500)
+plane_dim = (736, 500)
 if "rendered_images" not in st.session_state:
     st.session_state['rendered_images'] = []
     st.session_state['df_entities'] = generate_motion_df(size_of_entities, plane_dim, max_velocity)
@@ -18,6 +19,29 @@ if "rendered_images" not in st.session_state:
 
 placeholder = st.empty()
 checkbox = st.checkbox('show entities')
+
+circles=""
+for row in st.session_state["df_entities"].iterrows():
+    c = row[1]
+    circles+=f'<circle id="ent-{row[0]}" class="entitie" cx="{((c.x/plane_dim[0])*100):.3f}%"  cy="{((c.y/plane_dim[1])*100):.3f}%" r="{((c.r/plane_dim[0]*100)):.3f}" \
+stroke="black" stroke-width="0.15" fill="{"blue" if row[0]!=0 else "red"}" vi="{((c.vi/plane_dim[0]*100)):.3f}" vj="{((c.vj/plane_dim[0])*100):.3f}"/>\n'
+javascript_string = load("javascript/motion.js")
+javascript = f"""<script language="javascript">{javascript_string}</script>"""
+print(javascript)
+components.html(f"""
+<svg id="board" width="100%" height="100%" viewBox="0 0 100 {(500/736*100)}" onmouseover="setInterval(() => {'{startProcessing(this)}'}, 1000)">
+    <rect width="100%" height="100%" fill="white" stroke="red" stroke-width="0.1"/>
+    {circles}
+</svg>
+
+
+<button onclick="updateMotion(document.getElementById('ent-0'))">UpdateMotion 0</button>
+"""+javascript, height=plane_dim[1]+8)
+
+
+
+
+
 
 async def render_images(plane_dim):
     while True:
@@ -53,3 +77,7 @@ if not checkbox:
     st.session_state.loop = False
 
 
+
+
+
+render_footer()

@@ -4,3 +4,5 @@ matplotlib
 plotly
 pillow
 streamlit
+streamlit-ws-localstorage==1.0.0
+websockets

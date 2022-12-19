@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<script language="text/javascript">
+function onEvent_to(color, self) {
+    self.style.color = color;
+}
+
+
+function updateMotion(this) {
+    let d = document.getElementsByClassName("myoutput");
+    d.innerHTML = "<h1>TESTE</h1>";
+    let entity_setter = this;
+    let entity = this.attibutes;
+    let board = document.getElementById("board");
+    let entities = document.getElementsByClassName("entities");
+   
+    // Identifying border colision
+    let lb = (entity.x.value-entity.r.value <= 0) ? -1 : 1;
+    let rb = (entity.x.value+entity.r.value >= board.attributes.width.value) ? -1 : 1;
+    let tb = (entity.y.value-entity.r.value <= 0) ? -1 : 1;
+    let bb = (entity.y.value+entity.r.value >= board.attributes.height.value) ? -1 : 1;
+    // Reverting the vector direction where border colision happens
+    entity.setAttribute("vi", entity.vi.value * lb*rb);
+    entity.setAttribute("vj", entity.vj.value * tb*bb);
+    // Get the total sum of vectors that mus be applied for each entity
+    let total_sum_x = 0;
+    let total_sum_y = 0;
+    for (var i=0; i<entities.length; i++) {
+        _ent = entities[i].attributes;
+        if (entity.id.value == _ent.id.value) {
+            continue
+        } else {
+            total_sum_x += (Math.sqrt((entity.x.value-_ent.x.value)**2+(entity.y.value-_ent.y.value)**2) <= entity.r.value+_ent.r.value ) ? (_ent.vi.value-entity.vi.value) : 0
+            total_sum_y += (Math.sqrt((entity.x.value-_ent.x.value)**2+(entity.y.value-_ent.y.value)**2) <= entity.r.value+_ent.r.value ) ? (_ent.vj.value-entity.vj.value) : 0
+        }
+    }
+    entity_setter.setAttribute("x", entity.x.value + total_sum_x)
+    entity_setter.setAttribute("y", entity.y.value + total_sum_y)
+}
+
+function startProcessing(this) {
+    let entities = this.getElementsByTagName("circle")
+    for (let entity of entities) {
+        updateMotion(entity)
+    }
+}
+    </script>
+</body>
+</html>
