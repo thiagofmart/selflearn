@@ -32,9 +32,9 @@ def generate_motion_df(size_of_entities, plane_dim, max_velocity):
     df_entities = pd.DataFrame({
     "x":np.ceil(np.random.rand(size_of_entities)*plane_dim[0]*0.8+20.0), #x coordinate between [0-plane_dim[0]]
     "y":np.ceil(np.random.rand(size_of_entities)*plane_dim[1]*0.8+20.0), #y coordinate between [0-plane_dim[1]]
-    "r":np.concatenate(([20], np.random.rand(size_of_entities-1)*25+2), ), #radius between [0-1]
-    'vi':velocity_vectors[0:size_of_entities], # divide the vector into two and gets the first part
-    "vj":velocity_vectors[size_of_entities:], # divide the vector into two and gets the second part
+    "r":np.concatenate(([20], np.random.rand(size_of_entities-1)*25+7.5), ), #radius between [0-1]
+    'vi':velocity_vectors[0:size_of_entities]+2, # divide the vector into two and gets the first part
+    "vj":velocity_vectors[size_of_entities:]+2, # divide the vector into two and gets the second part
     })
     colisions = df_entities.apply(
         lambda row: _getEntitiesColisionsTotalVectorialSum(row, df_entities), 
