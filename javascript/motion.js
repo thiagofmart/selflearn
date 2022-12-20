@@ -35,6 +35,11 @@ function f(str) {
 
 function startProcessing(self) {
     let entities_setter = self.getElementsByTagName("circle")
+    let arrow = document.getElementById("arrow")
+    let vi_label = document.getElementById("vi-label")
+    let vj_label = document.getElementById("vj-label")
+    let coordinates = document.getElementById("coordinates")
+    let main_entity = entities_setter[0].attributes
     if (localStorage.process === undefined) {
         localStorage.process = setInterval(
             function() {
@@ -43,8 +48,9 @@ function startProcessing(self) {
                 for (var i=0; i<entities_setter.length; i++) {
                     updateMotion(entities_setter[i], entities_getter)
                 }
+                updateArrow(main_entity, arrow, vi_label, vj_label, coordinates)
             },
-            5,
+            25,
         )
     }
 }
@@ -72,4 +78,17 @@ function generate_getter(entities) {
     }
     df = JSON.parse(JSON.stringify(df))
     return df
+}
+function updateArrow(ent, arrow, vi_label, vj_label, coordinates) {
+    let [xd, yd] = getDirection(f(ent.vi.value), f(ent.vj.value))
+    arrow.setAttribute("x2", `${50+xd*20}%`)
+    arrow.setAttribute("y2", `${50+yd*20}%`)
+    vi_label.innerHTML = `Vi = ${f(ent.vi.value).toFixed(2)}`
+    vj_label.innerHTML = `Vj = ${f(ent.vj.value).toFixed(2)}`
+    coordinates.innerHTML = `Coordinates = (${f(ent.cx.value).toFixed(2)}, ${f(ent.cy.value).toFixed(2)})`
+}
+function getDirection(vi, vj) {
+    let x_direction = (vi>=0) ? 1*Math.abs(vi) : -1*Math.abs(vi) 
+    let y_direction = (vj>=0) ? 1*Math.abs(vj) : -1*Math.abs(vj)
+    return [x_direction, y_direction]
 }
