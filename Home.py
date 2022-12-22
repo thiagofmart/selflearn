@@ -34,7 +34,7 @@ st.markdown("""
 Welcome to my self learn studio, the place where I post anything that I want and when I want... 
 Hope you enjoy some randoom content. 😅
 
-My name is Thiago Ferreira Martins, I'm a brazilian Jr programmer trying to go beyond of study pattern
+My name is Thiago Ferreira Martins, I'm a brazilian programmer trying to go beyond of study pattern
 made by colleges roadmap. My main programming languages are Python and JavaScript, but I'm also looking for 
 more knowledge in C++, C, solidity and vyper programming languages.
 

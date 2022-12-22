@@ -131,6 +131,7 @@ async def create_image(plane_dim, df_entities):
 
 
 def render_footer():
+    st.markdown("---")
     variables = {
     "github": "https://github.com/thiagofmart",
     "linkedin": "https://www.linkedin.com/in/thiago-ferreira-martins-45004b191/",
@@ -147,4 +148,4 @@ def render_footer():
     link_style=variables["link_style"],
     ),
     height=35
-)
+    )

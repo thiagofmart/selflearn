@@ -83,11 +83,4 @@ st.latex(r'''
     a \left(\frac{1-r^{n}}{1-r}\right)
     ''')
 
-
-render_footer()
-
-
-
-
-
 render_footer()
