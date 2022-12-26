@@ -122,7 +122,6 @@ Examples:
 
 **_NOTE:_** space like this " " is also considered as a character;
 """)
-    
     with st.expander("Boolean"):
         st.markdown("""
 It represents the values true and false. When working with the boolean data type, it is helpful to keep in mind that sometimes a boolean value is also represented as 0 (for false) and 1 (for true);
@@ -134,8 +133,7 @@ Examples of representations:
 - 0 (for false);
 - \+ (for true);
 - \- (for false);
-""")
-    
+""")  
     with st.expander("Date"):
         st.markdown("""
 Needs no explanation; typically stores date in the YYYY-MM-DD format (ISO 8601 syntax)
@@ -248,6 +246,81 @@ code. Example: Queue, Stack, Linked list
         st.markdown("""
 Are data structures where the elements are not placed sequentially or linearly. We
 can't traverse all the elements in a single run only. Examples: Trees, Graphs.
+""")
+    st.markdown("""
+## Data Management
+
+It is the process of collecting, sotring, organizing, and maintaining data so it 
+can be used for various use cases like business intelligence. It involves creating 
+data structures, including data models, to store data in a way that makes data 
+retrieval efficient, as well as ensuring that data remains organized even when it 
+is updated or added.
+
+Data management also includes data security measures such as authentication and 
+authorization to ensure only authorized users can access data. Additionally,
+data management involves data quality control measures to ensure data accuracy 
+and integrity. Finally, data management includes data anlytics tools to help 
+create data analytics strategies. By using data managemnet processes, organizations 
+can better utilize their data, put it into the hands of every employee with 
+self-service business intelligence, and gain valuable insights into their operations.
+""")
+    st.markdown("""
+### Types of Data Management
+- Data Warehouses;
+- Data Lakes;
+- Data Governance;
+- Data Security;
+- Data Modeling;
+""")
+    with st.expander("Data Pipelines"):
+        st.markdown("""
+These are automated systems that move data from one source to another, typically from 
+a data source toa data storage. They can be used to create data flows between applications
+and data stores, allowing for data transformation and analysis along the way. Data pipelines
+can be used for data cleasing, data integration, real-time event processing, and more.
+
+There are many different types of data pipeline architectures that can be used to move data
+from one place to another. Some of the most common include:
+
+- <strong>ETL (Extract, Transform, Load)</strong> - Used to move data from a variety of \
+sources into a centralized repository, such as a data warehouse. The data is extracted from \
+the sources, transformed into a consistent format and then loaded into the target repository. \
+Some examples of data ETL are: 
+    - [Matillion](https://www.matillion.com/products/etl-software/)
+    - [Rudderstack](https://www.rudderstack.com/)
+    - [Supermetrics](https://supermetrics.com/)
+
+
+- <strong>ELT (Extract, Load, Transform)</strong> - It is similar to ETL, but the data \
+transformation step is performed after the data is loaded into the target repository.\
+This allows for more flexibillity in how the data is transformed, but can also lead to \
+increased complexity. \
+Some examples of data ELT are:
+    - [Airbyte](https://airbyte.com/)
+    - [Fivetran](https://www.fivetran.com/)
+    - [Talend](https://www.talend.com/)
+
+
+Data pipelines are an essential component of data architecture for modern organizations who 
+want to make data-driven decisions. They allow you to collect, process, and store data.
+Data pipelines come in different shapes and sizes, but all serve the same purpose of getting 
+your data from Point A to Point B (and sometimes C). At the end of the day, however, 
+organizations still need to explore this data, find insights and take action on them.
+
+""", unsafe_allow_html=True)
+    with st.expander("Data Catalogs"):
+        st.markdown("""
+Data catalogs are collections of metadata, combined with data management and search tools, 
+that helps analysts and other data users to find the data that they need, serves as an 
+inventory of available data, and provides information to evaluate fitness of data for 
+intended uses. In other words Data catalogs is the management of metadata.
+
+Data management, searching, data inventory, and data evaluation, depends on the central 
+capability to provide a collection of metadata. Data catalogs  have become a standard 
+for metadata management in the age of big data and self-service business intelligence.
+The metadata that we need today is more expansive than metadata in the BI era. A data
+catalog focuses first on datasets (the invetory of available data) and connects those 
+datasets with rich information to inform people who work with data.
 """)
     st.markdown("""
 ## Big Data
