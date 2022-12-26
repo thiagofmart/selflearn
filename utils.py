@@ -4,6 +4,9 @@ import pandas as pd
 from PIL import Image, ImageDraw
 import streamlit.components.v1 as components
 import os
+import hashlib
+import asyncio
+
 
 def file_selector(folder_path='.'):
     filenames = os.listdir(folder_path)
@@ -149,3 +152,22 @@ def render_footer():
     ),
     height=35
     )
+
+def generate_sha256hash(string):
+    h = hashlib.new("sha256")
+    h.update(bytes(str(string).strip(), "UTF-8"))
+    return h.hexdigest()
+
+@st.cache()
+def caching_async_mine(block_number, nonce, data):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    nonce = loop.run_until_complete(mine(block_number, nonce, data))
+    return nonce
+
+async def mine(block_number, nonce, data):
+    hash = generate_sha256hash(str(block_number)+str(nonce)+str(data))
+    while hash[0:4] != "0000":
+        nonce += 1
+        hash = generate_sha256hash(str(block_number)+str(nonce)+str(data))
+    return nonce

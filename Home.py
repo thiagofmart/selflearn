@@ -12,9 +12,6 @@ st.set_page_config(
 )
 
 
-
-
-
 st.markdown("""# Thiago Martins
 ***
 """)

@@ -1,8 +1,11 @@
 import streamlit as st
-from utils import render_footer
+from utils import render_footer, generate_sha256hash, caching_async_mine
+import asyncio
 
-
-posts = ["Data", "Database Management System"]
+if "mining" not in st.session_state:
+    st.session_state.mining = False
+    st.session_state.nonce = 0
+posts = ["Data", "Database Management System", "Blockchain"]
 st.markdown("""
 # Technology Page
 ---
@@ -11,7 +14,7 @@ Here you can see some posts about programming and technologies:
 
 """
 )
-data, dbms = st.tabs(posts)
+data, dbms, blockchain= st.tabs(posts)
 
 with data:
     st.markdown("""
@@ -102,7 +105,7 @@ Examples:
 - -42;
 - 42;
 """)
-    with st.expander("Floaing Point"):
+    with st.expander("Floating Point"):
         st.markdown("""
 It is also a numeric data type used to store numbers that may have a fractional component like a monetary value do;
 
@@ -266,11 +269,6 @@ self-service business intelligence, and gain valuable insights into their operat
 """)
     st.markdown("""
 ### Types of Data Management
-- Data Warehouses;
-- Data Lakes;
-- Data Governance;
-- Data Security;
-- Data Modeling;
 """)
     with st.expander("Data Pipelines"):
         st.markdown("""
@@ -321,6 +319,79 @@ for metadata management in the age of big data and self-service business intelli
 The metadata that we need today is more expansive than metadata in the BI era. A data
 catalog focuses first on datasets (the invetory of available data) and connects those 
 datasets with rich information to inform people who work with data.
+""")
+    with st.expander("Data Warehouses"):
+        st.markdown("""
+It is a system that aggregates data from different sources into a single, central,
+consistent data store to support data analysis, data mining, artificial intelligence
+(AI), and machine learning. A data warehouse system enables an organization to run 
+powerful analytics on huge volumes (petabytes and petabytes) of historical data in
+ways that a standard database cannot.
+
+Data warehousing systems have been part of business intelligence (BI) solutions for 
+over three decades, but they have evolved recently with the emergence of new data 
+types and data hosting methods. Traditionally, a data warehouse was hosted on-premises,
+often on mainframe computer, and its functionality was focused on extracting data from 
+other sources, cleansing and preparing the data, and loading and maintainning the data
+in a relational database. More recently, a data warehouse might be hosted on a dedicated
+appliance or in the cloud, and most data warehouses have added analytics capabilities 
+and data visualization and presentation tools.
+
+The architecture of a data warehouse have three tiers, which consists of a:
+- Bottom tier: The bottom tier consists of a data warehouse server, usually a relational 
+database system, which collects, cleanses, and transforms data from multiple data sources
+through ETL or ELT.
+- Middle tier:  consists of an OLAP (Online analytical processing) server which enables 
+fast query speeds. Three types of OLAP models can be used in this tier, which are known 
+as ROLAP MOLAP and HOLAP. The type of OLAP model used is dependent on the type of database 
+system that exists.
+- Top tier: Is represented by some kind of front-end user interface or reporting tool, 
+which enables end users to conduct ad-hoc data analysis on their business data.
+
+Schemas are ways in which data is organized within a database or data warehouse. There
+are two main types of schema structures, the star schema and the snowflake schema, which
+will impact the design of your data model.
+- Star schema: This schema consist of one fact table which can be joined to a number of 
+denormalized dimensions tables. It is considered the simples and most common type of schema,
+and its users benefit from its faster speeds while querying.
+
+- Snowflake schema: While not as widely adopted, the snowflake schema is another organization
+structure in data warehouses. In this case, the fact table  is connected to a number of 
+normalized dimension tables, and these dimension tables have child tables. Users of a snowflake 
+schema benefit from its low levels of data redundancy, but it comes at a cost to query 
+performance.
+
+There are a few types of data warehouses:
+- Cloud data warehouse - data warehouse built to run in the cloud, and it is offered to customers
+as a managed service. Cloud-based data warehouses have grown more popular over the last five to 
+seven years as more companies use cloud services and seek to reduce their on-premises data center
+footprint.
+- Data warehouse software (on-premises/license) - a business can purchase a data warehouse license 
+and then deploy a data warehouse on their own on-premises infrastructure. Although this is typically
+more expensive than a cloud data warehouse service, it might be a better choice for government entities,
+financial institutions, or other organizations that want more control over their data or need to comply
+with strict security or data privacy standards or regulations.
+- Data warehouse appliance - it is a pre-integrated bundle of hardware and software, that business can 
+connect to its network and start using as-is. A data warehouse appliance sits somewhere between cloud 
+and on-premises implementations in terms of upfront cost, speed of deployment, ease of scalability, and
+ management control.
+
+""")
+    with st.expander("Data Lakes"):
+        st.markdown("""
+
+""")
+    with st.expander("Data Governance"):
+        st.markdown("""
+
+""")
+    with st.expander("Data Security"):
+        st.markdown("""
+
+""")
+    with st.expander("Data Modeling"):
+        st.markdown("""
+
 """)
     st.markdown("""
 ## Big Data
@@ -385,9 +456,7 @@ It is the process of extracting insight meaning, hidden patterns from collected
 data that is useful to take a business decision for the purpose of decrasing 
 expenditure and increasing revenue.
 """)
-
-    
-
+ 
 with dbms:
     st.markdown("""
 # Database Management System
@@ -460,5 +529,53 @@ programs and data abstraction and it also supports multiple views of the data, e
 Although DBMS system is useful, it is still not suited for the specific task. It is 
 not recommended when you do not have the budget or the expertise to operate a DBMS. 
 In such cases, Excel/CSV/Flat Files could do just fine.
+
+!(alt)[https://drive.google.com/drive/folders/1YjV6PWkAsdSdRPKCFULwt9hlhhJflhhl/]
 """)
+
+with blockchain:
+    st.markdown("""
+# Blockchain
+""")
+    tabs = ["Hash", "Block", "Blockchain", "Distributed", "Tokens", "Coinbase"]
+    _hash, block, blockchain, distributed, tokens, coinbase = st.tabs(tabs)
+    with _hash:
+        # input block number
+        # input nonce
+        # input data
+        # output hash
+        st.markdown("## SHA 256 Hash")
+        _data = st.text_area(" Data")
+        _ = st.markdown(f"Hash:\n\n      {generate_sha256hash(_data)}") if len(_data)>0 else st.markdown(f"")
+
+    with block:
+        st.markdown("## Block")
+        block_number = st.number_input("Block Number", min_value=1, step=1)
+        nonce_place = st.empty()
+        data = st.text_area("Data")
+        output_place = st.empty()
+        submit = st.button("Mine")
+        if submit:
+            if not st.session_state.mining:
+                st.session_state.mining = True
+                st.session_state.nonce = caching_async_mine(block_number, st.session_state.nonce, data)
+                st.session_state.mining = False
+        nonce = nonce_place.number_input("Nonce", min_value=0, step=1, value=st.session_state.nonce)
+        hash = generate_sha256hash(str(block_number)+str(nonce)+str(data))
+        output_place.markdown(f"Hash:\n\n      {hash}")
+        if hash[0:4] != "0000":
+            st.warning("Invalid Hash")
+        else:
+            st.success("Valid Hash")
+    with blockchain:
+        st.markdown("")
+    with distributed:
+        st.markdown("")
+    with tokens:
+        st.markdown("")
+    with coinbase:
+        st.markdown("")
+
+
+
 render_footer()
