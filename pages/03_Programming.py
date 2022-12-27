@@ -1,10 +1,14 @@
 import streamlit as st
 from utils import render_footer, generate_sha256hash, caching_async_mine
+import numpy as np
 import asyncio
+from time import sleep
+
 
 if "mining" not in st.session_state:
     st.session_state.mining = False
     st.session_state.nonce = 0
+    
 posts = ["Data", "Database Management System", "Blockchain"]
 st.markdown("""
 # Technology Page
@@ -15,6 +19,139 @@ Here you can see some posts about programming and technologies:
 """
 )
 data, dbms, blockchain= st.tabs(posts)
+
+def create_block(block_id: int):
+    with st.container():
+        col1, col2 = st.columns([45, 1])
+        with col1:
+            block_number = st.number_input("Block Number"+(" "*block_id), min_value=1, step=1)
+            nonce_place = st.empty()
+            nonce = None
+            data = st.text_area("Data"+(" "*block_id))
+            output_place = st.empty()
+            submit = st.button("Mine"+(" "*block_id))
+            if submit:
+                if not st.session_state.mining:
+                    with st.spinner('Mining...'):
+                        st.session_state.mining = True
+                        nonce = caching_async_mine(block_number, data)
+                        st.session_state.mining = False
+            nonce = nonce_place.number_input("Nonce"+(" "*block_id), min_value=0, step=1, value=nonce if nonce!=None else st.session_state.nonce)
+
+            hash = generate_sha256hash(str(block_number)+str(nonce)+str(data))
+            output_place.markdown(f"Hash\n\n      {hash}")
+            if hash[0:4] != "0000":
+                st.error("Invalid Hash")
+            else:
+                st.success("Valid Hash")
+        st.markdown("""
+<style>
+    /* Style containers */
+    [data-testid="stVerticalBlock"] > [style*="flex-direction: column;"] > [data-testid="stVerticalBlock"] {
+        border-width: 2px;
+        border-style: solid;
+        border-image: linear-gradient(45deg, rgb(255, 75, 75), rgb(255, 253, 128)) 1;
+        padding-left: 20px;
+        padding-bottom: 20px;
+        padding-top: 20px;
+    }
+</style>
+        """,unsafe_allow_html=True,)
+
+def new_block(block_id: int):
+    i = block_id-1
+    with st.container():
+        col1, col2 = st.columns([45, 1])
+        with col1:
+            block_number = st.number_input("Block Number"+(" "*(block_id+1)), min_value=1, step=1, value=block_id, disabled=True) # i'm incremmenting space to avoid duplicate inputs with same key
+            nonce_place = st.empty()
+            nonce = st.session_state.blockchain["nonce"][i]
+            data = st.text_area("Data"+(" "*(block_id+1)))
+            st.markdown(f"Previous Hash\n\n    {st.session_state.blockchain['previous'][i]}")
+            output_place = st.empty()
+            
+            submit = st.button("Mine"+(" "*(block_id+1)))
+            if submit:
+                if not st.session_state.blockchain["mining"][i]:
+                    with st.spinner('Mining...'):
+                        st.session_state.blockchain["mining"][i] = True
+                        nonce = caching_async_mine(
+                            block_number = st.session_state.blockchain["block_id"][i], 
+                            data = data,
+                            previous = st.session_state.blockchain["previous"][i],
+                        )
+                        st.session_state.blockchain["mining"][i] = False
+            nonce = nonce_place.number_input("Nonce"+(" "*(block_id+1)), min_value=0, step=1, value=nonce if nonce!=None else st.session_state.blockchain["nonce"][i])
+            hash = generate_sha256hash(str(block_number)+str(nonce)+str(data)+str(st.session_state.blockchain['previous'][i]))
+            st.session_state.blockchain["nonce"][i] = nonce
+            st.session_state.blockchain["previous"][i+1] = hash
+            output_place.markdown(f"Hash\n\n      {hash}")
+            if hash[0:4] != "0000":
+                st.error("Invalid Hash")
+            else:
+                st.success("Valid Hash")
+        st.markdown("""
+<style>
+    /* Style containers */
+    [data-testid="stVerticalBlock"] > [style*="flex-direction: column;"] > [data-testid="stVerticalBlock"] {
+        border-width: 2px;
+        border-style: solid;
+        border-image: linear-gradient(45deg, rgb(255, 75, 75), rgb(255, 253, 128)) 1;
+        padding-left: 20px;
+        padding-bottom: 10px;
+        padding-top: 20px;
+    }
+</style>
+        """,unsafe_allow_html=True,)
+
+def _add_block_connection(blocks_qtd, i):
+    col1, col2, col3 = st.columns([100, 1, 100])
+    if i!=blocks_qtd-1:
+        with col2:
+            st.markdown("""
+<div style="
+width: 2px; height:10px; 
+border-width: 2px;
+border-style: solid;
+border-image: linear-gradient(45deg, rgb(255, 253, 128), rgb(255, 75, 75)) 1;
+padding-top:30px; position:absolute">
+
+</div>
+            """, unsafe_allow_html=True)
+
+
+
+def create_blockchain():
+    blocks_qtd = 4
+    if "blockchain" not in st.session_state:
+        st.session_state.blockchain = {
+        "block_id": np.array(range(1, blocks_qtd+1)),
+        "data": np.array(["" for i in range(0, blocks_qtd)]),
+        "mining": np.array([False for i in range(0, blocks_qtd)]),
+        }
+        hashs, previous, nonces = [], ["0"*64,], [caching_async_mine(1, "")]
+        for i in range(0, blocks_qtd):
+            nonce = caching_async_mine(
+                block_number = st.session_state.blockchain["block_id"][i], 
+                data = st.session_state.blockchain["data"][i],
+                previous = previous[i],
+                )
+            _hash = generate_sha256hash(
+                str(st.session_state.blockchain["block_id"][i])+\
+                str(nonce)+\
+                str(st.session_state.blockchain["data"][i])+\
+                str(previous[i])
+                )
+            nonces.append(nonce)
+            hashs.append(_hash)
+            previous.append(_hash)
+        st.session_state.blockchain["nonce"] = np.array(nonces)
+        st.session_state.blockchain["previous"] = np.array(previous)
+        st.session_state.blockchain["hash"] = np.array(hashs)
+
+    for i in range(0, blocks_qtd):
+        new_block(st.session_state.blockchain["block_id"][i])
+        _add_block_connection(blocks_qtd, i)
 
 with data:
     st.markdown("""
@@ -535,46 +672,38 @@ In such cases, Excel/CSV/Flat Files could do just fine.
 
 with blockchain:
     st.markdown("""
-# Blockchain
+# Blockchain Demo
 """)
     tabs = ["Hash", "Block", "Blockchain", "Distributed", "Tokens", "Coinbase"]
-    _hash, block, blockchain, distributed, tokens, coinbase = st.tabs(tabs)
+    _hash, block, _blockchain, distributed, tokens, coinbase = st.tabs(tabs)
     with _hash:
         # input block number
         # input nonce
         # input data
         # output hash
         st.markdown("## SHA 256 Hash")
-        _data = st.text_area(" Data")
-        _ = st.markdown(f"Hash:\n\n      {generate_sha256hash(_data)}") if len(_data)>0 else st.markdown(f"")
+        _data = str(st.text_area(" Data")).strip()
+        _ = st.markdown(f"Hash\n\n      {generate_sha256hash(_data)}") if len(_data)>0 else st.markdown(f"Hash\n\n    Null")
 
     with block:
         st.markdown("## Block")
-        block_number = st.number_input("Block Number", min_value=1, step=1)
-        nonce_place = st.empty()
-        data = st.text_area("Data")
-        output_place = st.empty()
-        submit = st.button("Mine")
-        if submit:
-            if not st.session_state.mining:
-                st.session_state.mining = True
-                st.session_state.nonce = caching_async_mine(block_number, st.session_state.nonce, data)
-                st.session_state.mining = False
-        nonce = nonce_place.number_input("Nonce", min_value=0, step=1, value=st.session_state.nonce)
-        hash = generate_sha256hash(str(block_number)+str(nonce)+str(data))
-        output_place.markdown(f"Hash:\n\n      {hash}")
-        if hash[0:4] != "0000":
-            st.warning("Invalid Hash")
-        else:
-            st.success("Valid Hash")
-    with blockchain:
-        st.markdown("")
+        create_block(1)
+            
+    with _blockchain:
+        st.markdown("## Blockchain")
+        create_blockchain()
+
     with distributed:
         st.markdown("")
     with tokens:
         st.markdown("")
     with coinbase:
         st.markdown("")
+
+
+def set_session_state(key, value):
+    st.session_state[key] = value
+
 
 
 

@@ -158,16 +158,17 @@ def generate_sha256hash(string):
     h.update(bytes(str(string).strip(), "UTF-8"))
     return h.hexdigest()
 
-@st.cache()
-def caching_async_mine(block_number, nonce, data):
+@st.cache(show_spinner=False)
+def caching_async_mine(block_number, data, previous=""):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    nonce = loop.run_until_complete(mine(block_number, nonce, data))
+    nonce = loop.run_until_complete(mine(block_number, data, previous))
     return nonce
 
-async def mine(block_number, nonce, data):
-    hash = generate_sha256hash(str(block_number)+str(nonce)+str(data))
+async def mine(block_number, data, previous):
+    nonce = 0
+    hash = generate_sha256hash(str(block_number)+str(nonce)+str(data)+str(previous))
     while hash[0:4] != "0000":
         nonce += 1
-        hash = generate_sha256hash(str(block_number)+str(nonce)+str(data))
+        hash = generate_sha256hash(str(block_number)+str(nonce)+str(data)+str(previous))
     return nonce
