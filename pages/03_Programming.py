@@ -82,6 +82,7 @@ def new_block(block_id: int):
                         )
                         st.session_state.blockchain["mining"][i] = False
             nonce = nonce_place.number_input("Nonce"+(" "*(block_id+1)), min_value=0, step=1, value=nonce if nonce!=None else st.session_state.blockchain["nonce"][i])
+
             hash = generate_sha256hash(str(block_number)+str(nonce)+str(data)+str(st.session_state.blockchain['previous'][i]))
             st.session_state.blockchain["nonce"][i] = nonce
             st.session_state.blockchain["previous"][i+1] = hash
@@ -118,6 +119,8 @@ padding-top:30px; position:absolute">
 
 </div>
             """, unsafe_allow_html=True)
+
+
 
 def create_blockchain():
     blocks_qtd = 4
