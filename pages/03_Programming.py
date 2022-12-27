@@ -58,19 +58,19 @@ def create_block(block_id: int):
 </style>
         """,unsafe_allow_html=True,)
 
-def new_block(block_id: int):
+def new_block(block_id: int, inc=1):
     i = block_id-1
     with st.container():
         col1, col2 = st.columns([45, 1])
         with col1:
-            block_number = st.number_input("Block Number"+(" "*(block_id+1)), min_value=1, step=1, value=block_id, disabled=True) # i'm incremmenting space to avoid duplicate inputs with same key
+            st.markdown(f"### Block #{block_id}") # i'm incremmenting space to avoid duplicate inputs with same key
             nonce_place = st.empty()
             nonce = st.session_state.blockchain["nonce"][i]
-            data = st.text_area("Data"+(" "*(block_id+1)))
+            data = st.text_area("Data"+(" "*(block_id+inc)))
             st.markdown(f"Previous Hash\n\n    {st.session_state.blockchain['previous'][i]}")
             output_place = st.empty()
             
-            submit = st.button("Mine"+(" "*(block_id+1)))
+            submit = st.button("Mine"+(" "*(block_id+inc)))
             if submit:
                 if not st.session_state.blockchain["mining"][i]:
                     with st.spinner('Mining...'):
@@ -81,9 +81,9 @@ def new_block(block_id: int):
                             previous = st.session_state.blockchain["previous"][i],
                         )
                         st.session_state.blockchain["mining"][i] = False
-            nonce = nonce_place.number_input("Nonce"+(" "*(block_id+1)), min_value=0, step=1, value=nonce if nonce!=None else st.session_state.blockchain["nonce"][i])
+            nonce = nonce_place.number_input("Nonce"+(" "*(block_id+inc)), min_value=0, step=1, value=nonce if nonce!=None else st.session_state.blockchain["nonce"][i])
 
-            hash = generate_sha256hash(str(block_number)+str(nonce)+str(data)+str(st.session_state.blockchain['previous'][i]))
+            hash = generate_sha256hash(str(block_id)+str(nonce)+str(data)+str(st.session_state.blockchain['previous'][i]))
             st.session_state.blockchain["nonce"][i] = nonce
             st.session_state.blockchain["previous"][i+1] = hash
             output_place.markdown(f"Hash\n\n      {hash}")
@@ -120,13 +120,11 @@ padding-top:30px; position:absolute">
 </div>
             """, unsafe_allow_html=True)
 
-
-
-def create_blockchain():
+def create_blockchain(inc=1):
     blocks_qtd = 4
     if "blockchain" not in st.session_state:
         st.session_state.blockchain = {
-        "block_id": np.array(range(1, blocks_qtd+1)),
+        "block_id": np.array(range(0, blocks_qtd+1)),
         "data": np.array(["" for i in range(0, blocks_qtd)]),
         "mining": np.array([False for i in range(0, blocks_qtd)]),
         }
@@ -151,8 +149,20 @@ def create_blockchain():
         st.session_state.blockchain["hash"] = np.array(hashs)
 
     for i in range(0, blocks_qtd):
-        new_block(st.session_state.blockchain["block_id"][i])
+        new_block(st.session_state.blockchain["block_id"][i], inc=inc)
         _add_block_connection(blocks_qtd, i)
+
+def create_distributed_blockchain():
+    A, B, C = st.tabs(["Peer A", "Peer B", "Peer C"])
+    with A:
+        st.markdown("### Peer A")
+        create_blockchain(inc=8)
+    with B:
+        st.markdown("### Peer B")
+        create_blockchain(inc=12)
+    with C:
+        st.markdown("### Peer C")
+        create_blockchain(inc=20)
 
 with data:
     st.markdown("""
@@ -695,7 +705,8 @@ with blockchain:
         create_blockchain()
 
     with distributed:
-        st.markdown("")
+        st.markdown("## Distributed Blockchain")
+        create_distributed_blockchain()
     with tokens:
         st.markdown("")
     with coinbase:
