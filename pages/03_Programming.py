@@ -119,8 +119,6 @@ padding-top:30px; position:absolute">
 </div>
             """, unsafe_allow_html=True)
 
-
-
 def create_blockchain():
     blocks_qtd = 4
     if "blockchain" not in st.session_state:
