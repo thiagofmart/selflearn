@@ -149,20 +149,20 @@ def create_blockchain(inc=1):
         st.session_state.blockchain["hash"] = np.array(hashs)
 
     for i in range(0, blocks_qtd):
-        new_block(st.session_state.blockchain["block_id"][i], inc=inc)
+        new_block(st.session_state.blockchain["block_id"][i], inc=inc*2)
         _add_block_connection(blocks_qtd, i)
 
 def create_distributed_blockchain():
     A, B, C = st.tabs(["Peer A", "Peer B", "Peer C"])
     with A:
         st.markdown("### Peer A")
-        create_blockchain(inc=8)
+        create_blockchain(inc=7)
     with B:
         st.markdown("### Peer B")
         create_blockchain(inc=12)
     with C:
         st.markdown("### Peer C")
-        create_blockchain(inc=20)
+        create_blockchain(inc=19)
 
 with data:
     st.markdown("""
@@ -706,7 +706,7 @@ with blockchain:
 
     with distributed:
         st.markdown("## Distributed Blockchain")
-        #create_distributed_blockchain()
+        create_distributed_blockchain()
     with tokens:
         st.markdown("")
     with coinbase:
