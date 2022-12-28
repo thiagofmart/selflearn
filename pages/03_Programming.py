@@ -706,7 +706,7 @@ with blockchain:
 
     with distributed:
         st.markdown("## Distributed Blockchain")
-        create_distributed_blockchain()
+        #create_distributed_blockchain()
     with tokens:
         st.markdown("")
     with coinbase:
