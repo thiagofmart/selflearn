@@ -124,7 +124,7 @@ def create_blockchain(inc=1):
     blocks_qtd = 4
     if "blockchain" not in st.session_state:
         st.session_state.blockchain = {
-        "block_id": np.array(range(0, blocks_qtd+1)),
+        "block_id": np.array(range(1, blocks_qtd+1)),
         "data": np.array(["" for i in range(0, blocks_qtd)]),
         "mining": np.array([False for i in range(0, blocks_qtd)]),
         }

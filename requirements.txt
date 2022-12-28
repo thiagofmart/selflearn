@@ -4,4 +4,3 @@ matplotlib
 plotly
 pillow
 streamlit
-streamlit-card
